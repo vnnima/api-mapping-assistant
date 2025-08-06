@@ -185,11 +185,10 @@ I'm here to help you map your business data to our compliance screening APIs. He
 🔍 **Analyze your data structure** and recommend API mappings
 📋 **Explain API endpoints** and their requirements  
 🛠️ **Provide implementation guidance** and best practices
-📊 **Help with data transformation** strategies
 
 **To get started:**
-1. Upload your business data files using the sidebar
-2. Ask me questions about API mapping
+1. Upload your ERP data files using the sidebar
+2. Ask me questions about Compliance Screening API mapping
 3. Get specific recommendations for your data
 
 Try asking: *"How do I map customer data to the screening API?"* or *"What fields are required for entity screening?"*"""
