@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🛡️ API Mapping Assistant")
 st.caption(
-    "I'll help you map your business data to our compliance screening APIs. Upload your business data and ask me questions!")
+    "I'll help you map your business data to our compliance screening APIs. Upload your business data and ask me questions!\nVersion: 2025-08-06")
 
 def get_openai_client():
     """Get OpenAI API key from secrets."""
