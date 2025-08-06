@@ -138,7 +138,7 @@ When users upload their business data files, analyze them and provide specific m
             assistant = self.client.beta.assistants.create(
                 name="API Mapping Assistant",
                 instructions=self.get_system_prompt(),
-                model="gpt-4o",
+                model="gpt-4.1-2025-04-14"
                 tools=[{"type": "file_search"}],
                 tool_resources={"file_search": {
                     "vector_store_ids": [vector_store_id]
