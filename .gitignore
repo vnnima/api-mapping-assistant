@@ -14,3 +14,6 @@ wheels/
 
 # Streamlit secrets (but allow config and examples)
 .streamlit/secrets.toml
+
+.env
+vectorstore_min/
