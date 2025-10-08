@@ -11,30 +11,61 @@ from dotenv import load_dotenv
 from typing import Iterator, Tuple, Literal, Dict, Any
 import os
 
+# Try to import streamlit for secrets (only available in streamlit environment)
+try:
+    import streamlit as st
+    STREAMLIT_AVAILABLE = True
+except ImportError:
+    STREAMLIT_AVAILABLE = False
+
 load_dotenv()
 
 # This can be a local or remote deployment URL, but it must point to a Langgraph Server
 langgraph_api = "https://api-mapping-assistant-proto-f14d296afb145fdcbf5fd67a82398c92.us.langgraph.app"
 
-# Get the API key from environment variables
-# You need to set LANGSMITH_API_KEY in your .env file or environment
-api_key = os.getenv("LANGSMITH_API_KEY")
+# Get the API key from environment variables or Streamlit secrets
+api_key = None
+if STREAMLIT_AVAILABLE and hasattr(st, 'secrets'):
+    try:
+        api_key = st.secrets.get("LANGSMITH_API_KEY")
+    except:
+        pass
+
+if not api_key:
+    api_key = os.getenv("LANGSMITH_API_KEY")
+
 if not api_key:
     raise ValueError(
-        "LANGSMITH_API_KEY environment variable is required for authentication")
+        "LANGSMITH_API_KEY environment variable or Streamlit secret is required for authentication")
+
+# Clean the API key by stripping whitespace
+api_key = api_key.strip()
+
+# Validate the API key format
+if not api_key.startswith("lsv2_"):
+    raise ValueError(
+        f"Invalid API key format. Expected to start with 'lsv2_', got: '{api_key[:10]}...'")
+
+print(f"DEBUG: Using API key: {api_key[:10]}...")
 
 # Initialize the client with authentication headers
-client = get_sync_client(
-    url=langgraph_api,
-    api_key=api_key  # This adds the x-api-key header automatically
-)
+try:
+    client = get_sync_client(
+        url=langgraph_api,
+        api_key=api_key  # This adds the x-api-key header automatically
+    )
+except Exception as e:
+    raise ValueError(f"Failed to initialize LangGraph client: {e}")
 
 EventKind = Literal["ai_chunk", "interrupt", "tool", "done", "other"]
 
 
 def get_assistants():
-    response = client.assistants.search()
-    return response
+    try:
+        response = client.assistants.search()
+        return response
+    except Exception as e:
+        raise RuntimeError(f"Failed to get assistants: {e}")
 
 
 def create_thread(user_id: str):
