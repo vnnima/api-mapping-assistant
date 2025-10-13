@@ -3,8 +3,14 @@ from api import get_thread_state, create_thread, delete_thread
 
 
 def render_sidebar():
-    assistant = st.selectbox("Select Assistant", sorted(list(
-        st.session_state.assistants.keys())))
+    assistant_options = []
+    for key in sorted(list(st.session_state.assistants.keys())):
+        if key == "Request Validation Assistant":
+            assistant_options.append(f"{key} - 🛠️ Do not use")
+        else:
+            assistant_options.append(key)
+
+    assistant = st.selectbox("Select Assistant", assistant_options)
 
     previous_assistant = st.session_state.get("active_assistant")
     assistant_changed = previous_assistant is not None and previous_assistant != assistant

@@ -22,6 +22,7 @@ load_dotenv()
 
 # This can be a local or remote deployment URL, but it must point to a Langgraph Server
 langgraph_api = "https://api-mapping-assistant-proto-f14d296afb145fdcbf5fd67a82398c92.us.langgraph.app"
+# langgraph_api = "http://localhost:2024"
 
 # Get the API key from environment variables or Streamlit secrets
 api_key = None
@@ -159,26 +160,41 @@ def run_thread_events(
         print("DEBUG: Starting fresh run with initial input:", initial_input)
         kwargs["input"] = initial_input or {}
 
-    for chunk in client.runs.stream(**kwargs):
-        if chunk.event != "updates":
-            yield ("other", {"event": chunk.event, "data": chunk.data})
-            continue
+    try:
+        for chunk in client.runs.stream(**kwargs):
+            print(f"DEBUG: Received chunk: {chunk.event}")
+            if chunk.event != "updates":
+                yield ("other", {"event": chunk.event, "data": chunk.data})
+                continue
 
-        data = chunk.data or {}
-        if "__interrupt__" in data:
-            items = data["__interrupt__"]
-            if isinstance(items, list) and items:
-                yield ("interrupt", items[0])   # {'value': {...}, 'id': '...'}
-            else:
-                yield ("interrupt", items)
-            continue
+            data = chunk.data or {}
+            print(f"DEBUG: Chunk data keys: {list(data.keys())}")
 
-        # surface AI text
-        for node_name, node_payload in data.items():
-            if isinstance(node_payload, dict):
-                for m in node_payload.get("messages") or []:
-                    if m.get("type") == "ai":
-                        yield ("ai_chunk", m.get("content", ""))
+            if "__interrupt__" in data:
+                items = data["__interrupt__"]
+                if isinstance(items, list) and items:
+                    # {'value': {...}, 'id': '...'}
+                    yield ("interrupt", items[0])
+                else:
+                    yield ("interrupt", items)
+                continue
+
+            # surface AI text
+            for node_name, node_payload in data.items():
+                print(f"DEBUG: Processing node {node_name}")
+                if isinstance(node_payload, dict):
+                    for m in node_payload.get("messages") or []:
+                        if m.get("type") == "ai":
+                            content = m.get("content", "")
+                            print(
+                                f"DEBUG: AI message content: {content[:100]}...")
+                            yield ("ai_chunk", content)
+
+        print("DEBUG: Stream completed")
+        yield ("done", None)
+    except Exception as e:
+        print(f"DEBUG: Error in run_thread_events: {e}")
+        yield ("other", {"error": str(e)})
 
 
 async def main():

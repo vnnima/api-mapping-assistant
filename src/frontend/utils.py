@@ -9,22 +9,22 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
     match (agent_name):
         case "API Mapping Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hallo! Ich bin dein **AEB API Mapping Assistant**. "
-                            "Ich helfe dir dabei, die **TCM Screening API** sauber in dein System zu integrieren.\n\n"
-                            "Möchtest du mit der Integration beginnen? (Ja/Nein)")
+                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+                            "I help you cleanly integrate the **TCM Screening API** into your system.\n\n"
+                            "Would you like to start with the integration? (Yes/No)")
         case "Request Validation Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hallo! Ich bin dein **AEB API Mapping Assistant**. "
-                            "Ich helfe dir zu prüfen, ob dein Aufruf an die Screening API korrekt ist.")
+                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+                            "I help you check if your call to the Screening API is correct.")
         case "QnA Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hallo! Ich bin dein **AEB API Mapping Assistant**. "
-                            "Du kannst mir allgmeine Fragen zur Screening API stellen."
+                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+                            "You can ask me general questions about the Screening API."
                             )
         case "Error Detection Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hallo! Ich bin dein **AEB API Mapping Assistant**. "
-                            "Ich helfe dir dabei Fehler bei der Nutzung der Screening API zu erklären."
-                            "Möchtest du mit der Integration beginnen? (Ja/Nein)")
+                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+                            "I help you explain errors when using the Screening API."
+                            "Would you like to start with the integration? (Yes/No)")
         case _:
             ...
