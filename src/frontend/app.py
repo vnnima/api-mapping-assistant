@@ -98,19 +98,23 @@ def render_interrupt_controls_if_pending() -> bool:
                     "Bitte füllen Sie alle Felder aus und laden Sie eine Datei hoch.")
                 return
 
-            project_root = Path(__file__).resolve().parents[2]
-            api_data_dir = project_root / "api_data"
-            api_data_dir.mkdir(parents=True, exist_ok=True)
+            file_content = api_metadata_file.getvalue()
+            if isinstance(file_content, bytes):
+                try:
+                    file_content = file_content.decode('utf-8')
+                except UnicodeDecodeError:
+                    try:
+                        file_content = file_content.decode('latin-1')
+                    except UnicodeDecodeError:
+                        st.error(
+                            "Could not decode file. Please ensure it's a text file with UTF-8 or Latin-1 encoding.")
+                        return
 
-            file_path = api_data_dir / api_metadata_file.name
-            with open(file_path, "wb") as f:
-                f.write(api_metadata_file.getvalue())
-
-            api_metadata = file_path
             payload = {
                 "system_name": system_name,
                 "process": process,
-                "api_metadata": api_metadata.as_posix(),
+                "api_metadata_filename": api_metadata_file.name,
+                "api_metadata_content": file_content,
             }
             st.session_state.resume_payload = payload
             st.session_state.is_resuming = True
