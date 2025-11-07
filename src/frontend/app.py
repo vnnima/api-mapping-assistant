@@ -19,7 +19,7 @@ from state import initialize_session_state
 
 initialize_session_state(user_id="valdrin")
 
-# Perform deferred rerun if requested by a callback
+# Perform deferred rerun if requested by interrupt/resume callbacks
 if st.session_state.get("trigger_rerun", False):
     st.session_state.trigger_rerun = False
     st.rerun()
@@ -166,10 +166,7 @@ st.title(st.session_state.active_assistant)
 
 handle_resume_if_needed()
 
-render_initial_message(st.session_state.active_assistant,
-                       st.session_state.thread_state)
-
-# Load latest thread state
+# Load latest thread state FIRST before rendering anything
 if (st.session_state.selected_thread_id and
         st.session_state.selected_thread_id in st.session_state.thread_ids):
     st.session_state.thread_state = get_thread_state(
@@ -177,6 +174,9 @@ if (st.session_state.selected_thread_id and
 else:
     # Clear thread state if no valid thread is selected
     st.session_state.thread_state = {}
+
+render_initial_message(st.session_state.active_assistant,
+                       st.session_state.thread_state)
 
 if ts := st.session_state.thread_state:
     messages = []
@@ -207,27 +207,37 @@ if ts := st.session_state.thread_state:
 
 interrupt_active = render_interrupt_controls_if_pending()
 
-# User should not input text in chat when there is an interrupt
-chat_disabled = interrupt_active or not st.session_state.thread_state
+# User should not input text in chat when there is an interrupt or when no thread is selected
+# Note: thread_state can be an empty dict {} for new threads, which is still valid
+chat_disabled = interrupt_active or st.session_state.selected_thread_id is None
 prompt = st.chat_input("Send a message...", disabled=chat_disabled)
 
 if prompt and not interrupt_active:
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    messages_to_send = [prompt]
+
+    # Clear the init flag since we're now handling the first message
+    if st.session_state.get("thread_needs_init", False):
+        st.session_state.thread_needs_init = False
+
     # Stream assistant response and capture interrupts
     with st.chat_message("assistant"):
         buffer = ""
         placeholder = st.empty()
+        received_content = False
+
         for kind, data in run_thread_events(
             st.session_state.active_assistant_id,
             st.session_state.selected_thread_id,
-            initial_input={"messages": [prompt]},
+            initial_input={"messages": messages_to_send},
             resume_payload=None,
         ):
             if kind == "ai_chunk":
                 buffer += data or ""
                 placeholder.markdown(buffer)
+                received_content = True
             elif kind == "interrupt":
                 # Persist interrupt and rerun so the gate shows controls next run
                 val = (data or {}).get(
@@ -239,5 +249,9 @@ if prompt and not interrupt_active:
                 break
             else:
                 pass
+
+        # If no content was received, show a placeholder
+        if not received_content and not buffer:
+            placeholder.markdown("_Thinking..._")
 
     st.rerun()

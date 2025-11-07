@@ -47,8 +47,6 @@ if not api_key.startswith("lsv2_"):
     raise ValueError(
         f"Invalid API key format. Expected to start with 'lsv2_', got: '{api_key[:10]}...'")
 
-print(f"DEBUG: Using API key: {api_key[:10]}...")
-
 # Initialize the client with authentication headers
 try:
     client = get_sync_client(
@@ -153,22 +151,18 @@ def run_thread_events(
               "assistant_id": assistant_id, "stream_mode": "updates"}
     if resume_payload is not None:
         # RESUME PATH
-        print("DEBUG: Run thread with payload:", resume_payload)
         kwargs["command"] = Command(resume=resume_payload)
     else:
         # FIRST CALL PATH
-        print("DEBUG: Starting fresh run with initial input:", initial_input)
         kwargs["input"] = initial_input or {}
 
     try:
         for chunk in client.runs.stream(**kwargs):
-            print(f"DEBUG: Received chunk: {chunk.event}")
             if chunk.event != "updates":
                 yield ("other", {"event": chunk.event, "data": chunk.data})
                 continue
 
             data = chunk.data or {}
-            print(f"DEBUG: Chunk data keys: {list(data.keys())}")
 
             if "__interrupt__" in data:
                 items = data["__interrupt__"]
@@ -181,19 +175,17 @@ def run_thread_events(
 
             # surface AI text
             for node_name, node_payload in data.items():
-                print(f"DEBUG: Processing node {node_name}")
                 if isinstance(node_payload, dict):
-                    for m in node_payload.get("messages") or []:
+                    messages = node_payload.get("messages") or []
+                    for m in messages:
                         if m.get("type") == "ai":
                             content = m.get("content", "")
-                            print(
-                                f"DEBUG: AI message content: {content[:100]}...")
                             yield ("ai_chunk", content)
 
-        print("DEBUG: Stream completed")
         yield ("done", None)
     except Exception as e:
-        print(f"DEBUG: Error in run_thread_events: {e}")
+        import traceback
+        traceback.print_exc()
         yield ("other", {"error": str(e)})
 
 

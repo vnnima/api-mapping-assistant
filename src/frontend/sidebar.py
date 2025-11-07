@@ -95,14 +95,21 @@ def _create_new_thread(user_id: str):
     thread = create_thread(user_id)
     st.session_state.threads.append(thread)
     st.session_state.thread_ids.append(thread["thread_id"])
-    st.session_state.thread_state = get_thread_state(thread["thread_id"])
     st.session_state.selected_thread_id = thread["thread_id"]
+
     # Clear any pending interrupts when creating new thread
     st.session_state.pending_interrupt = None
     st.session_state.pending_payload = None
     st.session_state.is_resuming = False
     st.session_state.resume_payload = None
-    st.session_state.trigger_rerun = True
+
+    # Get the thread state - for a new thread this will be empty
+    st.session_state.thread_state = get_thread_state(thread["thread_id"])
+
+    # Mark that we need to initialize this thread on next interaction
+    st.session_state.thread_needs_init = True
+
+    # Don't set trigger_rerun - Streamlit will rerun automatically after button callback
 
 
 def _delete_thread_and_update_state(thread_id: str):
@@ -122,4 +129,4 @@ def _delete_thread_and_update_state(thread_id: str):
         st.session_state.selected_thread_id = st.session_state.thread_ids[-1]
     else:
         st.session_state.selected_thread_id = None
-    st.session_state.trigger_rerun = True
+    # Don't set trigger_rerun - Streamlit will rerun automatically after button callback

@@ -54,3 +54,7 @@ def initialize_session_state(user_id: str):
     # Generic rerun trigger for callbacks (avoid calling st.rerun() inside them)
     if "trigger_rerun" not in st.session_state:
         st.session_state.trigger_rerun = False
+
+    # Flag to track if a thread needs initialization
+    if "thread_needs_init" not in st.session_state:
+        st.session_state.thread_needs_init = False
