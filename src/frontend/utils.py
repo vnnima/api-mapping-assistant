@@ -11,6 +11,22 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
         st.write("Create a new conversation to start chatting...")
         return
 
+    # Get the assistant name from thread metadata if available
+    # This ensures we show the correct greeting for the assistant that created this thread
+    actual_agent_name = agent_name
+
+    # Check thread-level metadata first
+    if "metadata" in thread_state and thread_state["metadata"]:
+        metadata = thread_state["metadata"]
+        if "assistant_name" in metadata:
+            actual_agent_name = metadata["assistant_name"]
+
+    # Also check in values.metadata as fallback
+    if "values" in thread_state and isinstance(thread_state["values"], dict):
+        metadata = thread_state["values"].get("metadata", {})
+        if metadata and "assistant_name" in metadata:
+            actual_agent_name = metadata["assistant_name"]
+
     # Check if there are already messages in the thread
     messages = []
     if "values" in thread_state and isinstance(thread_state["values"], dict):
@@ -34,7 +50,7 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
     if not should_show_greeting:
         return
 
-    match (agent_name):
+    match (actual_agent_name):
         case "API Mapping Assistant":
             with st.chat_message("assistant"):
                 st.markdown("Hello! I am your **AEB API Mapping Assistant**. "

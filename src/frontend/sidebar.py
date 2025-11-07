@@ -45,8 +45,8 @@ def render_sidebar():
             "selected_thread_id" not in st.session_state
             or st.session_state.selected_thread_id not in st.session_state.thread_ids
         ):
-            # Use latest thread (last in list)
-            st.session_state.selected_thread_id = st.session_state.thread_ids[-1]
+            # Use first thread (oldest) if current selection is invalid
+            st.session_state.selected_thread_id = st.session_state.thread_ids[0]
 
         st.radio(
             "Select Conversation",
@@ -92,9 +92,11 @@ def format_thread_name(thread_id: str) -> str:
 
 
 def _create_new_thread(user_id: str):
-    thread = create_thread(user_id)
-    st.session_state.threads.append(thread)
-    st.session_state.thread_ids.append(thread["thread_id"])
+    # Create thread with the current assistant name stored in metadata
+    thread = create_thread(user_id, st.session_state.active_assistant)
+    # Insert at the beginning of the list (index 0) instead of appending
+    st.session_state.threads.insert(0, thread)
+    st.session_state.thread_ids.insert(0, thread["thread_id"])
     st.session_state.selected_thread_id = thread["thread_id"]
 
     # Clear any pending interrupts when creating new thread
@@ -126,7 +128,8 @@ def _delete_thread_and_update_state(thread_id: str):
     st.session_state.resume_payload = None
     # If we deleted the selected thread, pick a new one
     if st.session_state.thread_ids:
-        st.session_state.selected_thread_id = st.session_state.thread_ids[-1]
+        # Select the first remaining thread
+        st.session_state.selected_thread_id = st.session_state.thread_ids[0]
     else:
         st.session_state.selected_thread_id = None
     # Don't set trigger_rerun - Streamlit will rerun automatically after button callback

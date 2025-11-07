@@ -162,9 +162,9 @@ with st.sidebar:
     render_sidebar()
 
 
-st.title(st.session_state.active_assistant)
-
-handle_resume_if_needed()
+# Determine which assistant to display in the title
+# Use the assistant from the thread metadata if available, otherwise use the active assistant
+display_assistant = st.session_state.active_assistant
 
 # Load latest thread state FIRST before rendering anything
 if (st.session_state.selected_thread_id and
@@ -174,6 +174,24 @@ if (st.session_state.selected_thread_id and
 else:
     # Clear thread state if no valid thread is selected
     st.session_state.thread_state = {}
+
+# Get the assistant name from thread metadata if available
+if st.session_state.thread_state:
+    # Check thread-level metadata first
+    if "metadata" in st.session_state.thread_state and st.session_state.thread_state["metadata"]:
+        metadata = st.session_state.thread_state["metadata"]
+        if "assistant_name" in metadata:
+            display_assistant = metadata["assistant_name"]
+
+    # Also check in values.metadata as fallback
+    if "values" in st.session_state.thread_state and isinstance(st.session_state.thread_state["values"], dict):
+        metadata = st.session_state.thread_state["values"].get("metadata", {})
+        if metadata and "assistant_name" in metadata:
+            display_assistant = metadata["assistant_name"]
+
+st.title(display_assistant)
+
+handle_resume_if_needed()
 
 render_initial_message(st.session_state.active_assistant,
                        st.session_state.thread_state)

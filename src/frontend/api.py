@@ -67,12 +67,12 @@ def get_assistants():
         raise RuntimeError(f"Failed to get assistants: {e}")
 
 
-def create_thread(user_id: str):
-    response = client.threads.create(
-        metadata={
-            "user_id": user_id,
-        }
-    )
+def create_thread(user_id: str, assistant_name: str | None = None):
+    metadata = {"user_id": user_id}
+    if assistant_name:
+        metadata["assistant_name"] = assistant_name
+
+    response = client.threads.create(metadata=metadata)
     return response
 
 

@@ -34,7 +34,8 @@ def initialize_session_state(user_id: str):
 
     if "selected_thread_id" not in st.session_state:
         if st.session_state.thread_ids:
-            st.session_state.selected_thread_id = st.session_state.thread_ids[-1]
+            # Select the first thread (oldest) by default
+            st.session_state.selected_thread_id = st.session_state.thread_ids[0]
         else:
             st.session_state.selected_thread_id = None
 
