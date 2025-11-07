@@ -3,8 +3,9 @@ import streamlit as st
 
 def render_initial_message(agent_name: str | None, thread_state: dict | None) -> None:
     """
-    Render the initial assistant message only when the thread is empty.
+    Render the initial assistant message for new threads.
     This provides a welcoming message to start the conversation.
+    The message is always shown (even if there are subsequent messages) to maintain conversation history.
     """
     if not thread_state:
         st.write("Create a new conversation to start chatting...")
@@ -20,8 +21,17 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
                 messages = item["messages"]
                 break
 
-    # Only show initial message if thread is empty (no messages yet)
-    if messages:
+    # Only show initial message if thread is empty OR if the first message is from the user
+    # (meaning our greeting wasn't saved to the backend)
+    should_show_greeting = False
+    if not messages:
+        # Empty thread - show greeting
+        should_show_greeting = True
+    elif messages and messages[0].get("type") != "ai":
+        # First message is not from AI - show greeting before it
+        should_show_greeting = True
+
+    if not should_show_greeting:
         return
 
     match (agent_name):
