@@ -128,6 +128,34 @@ def render_interrupt_controls_if_pending() -> bool:
             st.button("Daten senden 💬", on_click=_resume_with_api_data)
 
         return True
+    elif st.session_state.pending_payload['type'] in ["show_general_info", "show_screening_variants", "show_responses"]:
+        # Handle yes/no/skip interrupts for information display
+        prompt_text = st.session_state.pending_payload.get(
+            'prompt', "Möchten Sie diese Information sehen?")
+        st.info(f"**Information Option**\n\n{prompt_text}")
+
+        col1, col2, col3 = st.columns(3)
+
+        def _resume_yes():
+            st.session_state.resume_payload = {"response": "yes"}
+            st.session_state.is_resuming = True
+            st.session_state.trigger_rerun = True
+
+        def _resume_skip():
+            st.session_state.resume_payload = {"response": "skip"}
+            st.session_state.is_resuming = True
+            st.session_state.trigger_rerun = True
+
+        with col1:
+            st.button("✅ Ja, zeigen", key="interrupt_yes",
+                      on_click=_resume_yes)
+
+        with col2:
+            st.button("⏭️ Überspringen", key="interrupt_skip",
+                      on_click=_resume_skip)
+
+        return True
+
     else:
         prompt_text = st.session_state.pending_payload[
             'prompt'] or "Eingabe benötigt: Drücken sie `weiter` oder stellen sie eine Frage."

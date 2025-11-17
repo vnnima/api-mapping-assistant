@@ -53,9 +53,15 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
     match (actual_agent_name):
         case "API Mapping Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+                st.markdown("Hello! I'm your **AEB API Mapping Assistant**. "
                             "I help you cleanly integrate the **TCM Screening API** into your system.\n\n"
-                            "Would you like to start with the integration? (Yes/No)")
+                            "Please first provide the **AEB RZ Endpoints** (at least one URL). "
+                            "These are required for API integration. "
+                            "Format:  \n"
+                            "```\n"
+                            "Test: https://...  \n"
+                            "Prod:  https://...  \n"
+                            "```")
         case "Request Validation Assistant":
             with st.chat_message("assistant"):
                 st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
