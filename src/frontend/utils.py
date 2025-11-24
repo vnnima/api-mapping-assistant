@@ -55,6 +55,7 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
             with st.chat_message("assistant"):
                 st.markdown("Hello! I'm your **AEB API Mapping Assistant**. "
                             "I help you cleanly integrate the **TCM Screening API** into your system.\n\n"
+                            "In this [Jira Ticket](https://pm.aeb.com/jira/secure/Dashboard.jspa?selectPageId=21507) you can find all relevant steps and required information for the integration. "
                             "Please first provide the **AEB RZ Endpoints** (at least one URL). "
                             "These are required for API integration. "
                             "Format:  \n"

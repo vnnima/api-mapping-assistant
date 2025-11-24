@@ -125,7 +125,7 @@ def render_interrupt_controls_if_pending() -> bool:
             st.text_input("Process:", key="process")
             st.file_uploader("Upload existing API metadata:",
                              type=["json", "xml", "csv", "yaml", "txt"], key="api_metadata_file")
-            st.button("Send data 💬", on_click=_resume_with_api_data)
+            st.button("Send data", type="primary", on_click=_resume_with_api_data)
 
         return True
     elif st.session_state.pending_payload['type'] in ["show_general_info", "show_screening_variants", "show_responses"]:
@@ -156,7 +156,11 @@ def render_interrupt_controls_if_pending() -> bool:
             st.button("⏭️ Skip", key="interrupt_skip",
                       on_click=_resume_skip)
 
-        return True
+        with col3:
+            st.write("Or type a question below ⬇️")
+
+        # Return False to allow chat input
+        return False
 
     else:
         prompt_text = st.session_state.pending_payload[
@@ -255,12 +259,27 @@ if ts := st.session_state.thread_state:
 
 interrupt_active = render_interrupt_controls_if_pending()
 
-# User should not input text in chat when there is an interrupt or when no thread is selected
+# Check if we have a special info display interrupt that allows chat input
+has_info_interrupt = (st.session_state.pending_interrupt is not None and
+                      st.session_state.pending_payload and
+                      st.session_state.pending_payload.get('type') in ["show_general_info", "show_screening_variants", "show_responses"])
+
+# User should not input text in chat when there is a blocking interrupt or when no thread is selected
 # Note: thread_state can be an empty dict {} for new threads, which is still valid
 chat_disabled = interrupt_active or st.session_state.selected_thread_id is None
 prompt = st.chat_input("Send a message...", disabled=chat_disabled)
 
 if prompt and not interrupt_active:
+    # If there's an info display interrupt, treat the message as a question
+    if has_info_interrupt:
+        st.session_state.resume_payload = {
+            "response": "question", "question": prompt}
+        st.session_state.is_resuming = True
+        st.session_state.pending_interrupt = None
+        st.session_state.pending_payload = None
+        st.rerun()
+
+if prompt and not interrupt_active and not has_info_interrupt:
     with st.chat_message("user"):
         st.markdown(prompt)
 
