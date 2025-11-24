@@ -83,7 +83,7 @@ def render_interrupt_controls_if_pending() -> bool:
 
     if st.session_state.pending_payload['type'] == "get_api_data":
         prompt_text = st.session_state.pending_payload[
-            'prompt'] or "Bitte geben Sie Ihren Systemnamen, Prozess und bestehenden API-Metadaten an (z.B. JSON-Schema, XML-Beispiel, CSV-Struktur, OpenAPI/Swagger Definition)."
+            'prompt'] or "Please provide your system name, process, and existing API metadata (e.g., JSON schema, XML example, CSV structure, OpenAPI/Swagger definition)."
         st.info(f"**Interrupt**\n\n{prompt_text}")
 
         col = st.container()
@@ -95,7 +95,7 @@ def render_interrupt_controls_if_pending() -> bool:
 
             if not system_name or not process or not api_metadata_file:
                 st.error(
-                    "Bitte füllen Sie alle Felder aus und laden Sie eine Datei hoch.")
+                    "Please fill in all fields and upload a file.")
                 return
 
             file_content = api_metadata_file.getvalue()
@@ -121,18 +121,20 @@ def render_interrupt_controls_if_pending() -> bool:
             st.session_state.trigger_rerun = True
 
         with col:
-            st.text_input("Systemname:", key="system_name")
-            st.text_input("Prozess:", key="process")
-            st.file_uploader("Bestehende API-Metadaten hochladen:",
+            st.text_input("System name:", key="system_name")
+            st.text_input("Process:", key="process")
+            st.file_uploader("Upload existing API metadata:",
                              type=["json", "xml", "csv", "yaml", "txt"], key="api_metadata_file")
-            st.button("Daten senden 💬", on_click=_resume_with_api_data)
+            st.button("Send data 💬", on_click=_resume_with_api_data)
 
         return True
     elif st.session_state.pending_payload['type'] in ["show_general_info", "show_screening_variants", "show_responses"]:
         # Handle yes/no/skip interrupts for information display
         prompt_text = st.session_state.pending_payload.get(
-            'prompt', "Möchten Sie diese Information sehen?")
-        st.info(f"**Information Option**\n\n{prompt_text}")
+            'prompt', "Would you like to see this information?")
+        title = st.session_state.pending_payload.get(
+            'title', "Information Option")
+        st.info(f"**{title}**\n\n{prompt_text}")
 
         col1, col2, col3 = st.columns(3)
 
@@ -147,18 +149,18 @@ def render_interrupt_controls_if_pending() -> bool:
             st.session_state.trigger_rerun = True
 
         with col1:
-            st.button("✅ Ja, zeigen", key="interrupt_yes",
+            st.button("✅ Yes, show", key="interrupt_yes",
                       on_click=_resume_yes)
 
         with col2:
-            st.button("⏭️ Überspringen", key="interrupt_skip",
+            st.button("⏭️ Skip", key="interrupt_skip",
                       on_click=_resume_skip)
 
         return True
 
     else:
         prompt_text = st.session_state.pending_payload[
-            'prompt'] or "Eingabe benötigt: Drücken sie `weiter` oder stellen sie eine Frage."
+            'prompt'] or "Input required: Press `continue` or ask a question."
         st.info(f"**Interrupt**\n\n{prompt_text}")
 
         col1, col2 = st.columns([1, 3])
@@ -180,8 +182,8 @@ def render_interrupt_controls_if_pending() -> bool:
                 st.session_state.trigger_rerun = True
 
         with col2:
-            st.text_input("Frage stellen:", key="interrupt_question_text")
-            st.button("Frage senden 💬", on_click=_resume_question)
+            st.text_input("Ask a question:", key="interrupt_question_text")
+            st.button("Send question 💬", on_click=_resume_question)
 
         return True
 
