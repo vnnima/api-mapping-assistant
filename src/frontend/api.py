@@ -21,8 +21,8 @@ except ImportError:
 load_dotenv()
 
 # This can be a local or remote deployment URL, but it must point to a Langgraph Server
-langgraph_api = "https://api-mapping-assistant-v2-30150a3fb4cc5ae8a56ff0002acdeacd.us.langgraph.app"
 # langgraph_api = "http://localhost:2024"
+langgraph_api = st.secrets.get("LANGGRAPH_API_URL") or "http://localhost:2024"
 
 # Get the API key from environment variables or Streamlit secrets
 api_key = None
