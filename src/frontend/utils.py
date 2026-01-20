@@ -53,16 +53,9 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
     match (actual_agent_name):
         case "API Mapping Assistant":
             with st.chat_message("assistant"):
-                st.markdown("Hello! I'm your **AEB API Mapping Assistant**. "
-                            "I help you cleanly integrate the **TCM Screening API** into your system.\n\n"
-                            "In this [Jira Ticket](https://pm.aeb.com/jira/secure/Dashboard.jspa?selectPageId=21507) you can find all relevant steps and required information for the integration. "
-                            "Please first provide the **AEB RZ Endpoints** (at least one URL). "
-                            "These are required for API integration. "
-                            "Format:  \n"
-                            "```\n"
-                            "Test: https://...  \n"
-                            "Prod:  https://...  \n"
-                            "```")
+                st.markdown("Welcome to the **API Mapping Assistant**. This assistant guides you step by step through all the relevant steps required to technically connect your partner or host system to Compliance Screening via an API.\n\n"
+                            "Additionally you can ask me general questions about the integration or the API during each step."
+                            )
         case "Request Validation Assistant":
             with st.chat_message("assistant"):
                 st.markdown("Hello! I am your **AEB API Mapping Assistant**. "

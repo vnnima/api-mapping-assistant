@@ -104,6 +104,7 @@ def _create_new_thread(user_id: str):
     st.session_state.pending_payload = None
     st.session_state.is_resuming = False
     st.session_state.resume_payload = None
+    st.session_state.initial_run_triggered = False
 
     # Get the thread state - for a new thread this will be empty
     st.session_state.thread_state = get_thread_state(thread["thread_id"])
