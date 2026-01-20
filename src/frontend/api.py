@@ -22,13 +22,15 @@ load_dotenv()
 
 # This can be a local or remote deployment URL, but it must point to a Langgraph Server
 # langgraph_api = "http://localhost:2024"
-langgraph_api = "http://localhost:2024"
 
 # Get the API key from environment variables or Streamlit secrets
+langraph_api = None
 api_key = None
 if STREAMLIT_AVAILABLE and hasattr(st, 'secrets'):
     try:
         api_key = st.secrets.get("LANGSMITH_API_KEY")
+        langgraph_api = st.secrets.get(
+            "LANGGRAPH_API_URL", "http://localhost:2024")
     except:
         pass
 
