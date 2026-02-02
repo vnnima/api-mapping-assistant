@@ -51,24 +51,20 @@ def render_initial_message(agent_name: str | None, thread_state: dict | None) ->
         return
 
     match (actual_agent_name):
-        case "API Mapping Assistant":
+        case "API mapping":
             with st.chat_message("assistant"):
                 st.markdown("Welcome to the **API Mapping Assistant**. This assistant guides you step by step through all the relevant steps required to technically connect your partner or host system to Compliance Screening via an API.\n\n"
                             "Additionally you can ask me general questions about the integration or the API during each step."
                             )
-        case "Request Validation Assistant":
-            with st.chat_message("assistant"):
-                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
-                            "I help you check if your call to the Screening API is correct.")
-        case "QnA Assistant":
-            with st.chat_message("assistant"):
-                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
-                            "You can ask me general questions about the Screening API."
-                            )
-        case "Error Detection Assistant":
-            with st.chat_message("assistant"):
-                st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
-                            "I help you explain errors when using the Screening API."
-                            "Would you like to start with the integration? (Yes/No)")
+        # case "API questions and answers":
+        #     with st.chat_message("assistant"):
+        #         st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+        #                     "You can ask me general questions about the Screening API."
+        #                     )
+        # case "API error analysis":
+        #     with st.chat_message("assistant"):
+        #         st.markdown("Hello! I am your **AEB API Mapping Assistant**. "
+        #                     "I help you explain errors when using the Screening API."
+        #                     )
         case _:
             ...
